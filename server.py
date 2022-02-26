@@ -5,10 +5,17 @@ import os
 from contextlib import redirect_stdout
 
 # Connection Data
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.connect(("8.8.8.8", 80))
-host = s.getsockname()[0]
-s.close()
+def extract_ip():
+    st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        st.connect(('10.255.255.255', 1))
+        IP = st.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        st.close()
+    return IP
+host = (extract_ip())
 
 if not os.path.isfile('port.ak47'):
     unu = open("port.ak47", "x")
