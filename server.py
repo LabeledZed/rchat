@@ -5,7 +5,10 @@ import os
 from contextlib import redirect_stdout
 
 # Connection Data
-host = 'localhost'
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect(("8.8.8.8", 80))
+host = s.getsockname()[0]
+s.close()
 
 if not os.path.isfile('port.ak47'):
     unu = open("port.ak47", "x")
