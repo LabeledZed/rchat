@@ -4,6 +4,7 @@ from tkinter import *
 import tkinter.scrolledtext as st
 import random
 import time
+import sys
 win = Tk()
 win.config(bg="#1a1a1a")
 win.title("rChat Client")
@@ -26,8 +27,7 @@ lbl3.grid(column=0, row=4)
 ent3.grid(column=0, row=5)
 ent.focus()
 def exitt():
-    exit()
-    exit()
+    sys.exit()
 btn3 = Button(win, text="Exit", command=exitt, bg="#1a1a1a", fg="#ff0000", font=("Arial", 13))
 btn3.grid(column=0, row=7)
 
