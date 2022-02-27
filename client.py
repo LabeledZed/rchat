@@ -34,7 +34,7 @@ def cpr(p):
 
 
 # Choosing Nickname
-lbl0 = Label(win, text="rText Client v1", bg="#1a1a1a", fg="#8cb8ff", font=("Arial", 16))
+lbl0 = Label(win, text="rText Client v1.01", bg="#1a1a1a", fg="#8cb8ff", font=("Arial", 16))
 lbl = Label(win, text="Nickname:", bg="#1a1a1a", fg="#ffffff", font=("Arial", 13))
 ent = Entry(win, bg="#1a1a1a", fg="#ffffff", font=("Arial", 13))
 lbl2 = Label(win, text="Server IP (blank for default):", bg="#1a1a1a", fg="#ffffff", font=("Arial", 13))
