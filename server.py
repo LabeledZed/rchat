@@ -48,7 +48,7 @@ else:
 
 print("Server started on port " + str(port))
 with open('chatlog.ak47', 'a') as f:
-    f.write("\n"+time.ctime())
+    f.write("\n\nrChat (Version 1.01-beta) - "+time.ctime()+"\n")
 # Starting Server
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((host, port))
