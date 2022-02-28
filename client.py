@@ -6,6 +6,7 @@ import random
 import time
 import sys
 import psutil
+import os
 
 win = Tk()
 win.config(bg="#1a1a1a")
@@ -77,11 +78,11 @@ if cpr('rserver.exe'):
 ent.focus()
 
 
-def exitt():
+def exittt():
     sys.exit()
 
 
-btn3 = Button(win, text="Exit", command=exitt, bg="#1a1a1a", fg="#ff0000", font=("Arial", 13))
+btn3 = Button(win, text="Exit", command=exittt, bg="#1a1a1a", fg="#ff0000", font=("Arial", 13))
 btn3.grid(column=0, row=9)
 
 
@@ -93,6 +94,7 @@ win.bind("<Return>", yesont)
 
 
 def connectdef():
+    global client
     global win
     global hostb
     global lipp
@@ -115,9 +117,6 @@ def connectdef():
         port = int(ent3.get())
 
     btn3.grid_forget()
-    btn3.config(font=("Arial", 10))
-    btn3.grid(column=2, row=1)
-
     lbl.grid_forget()
     ent.grid_forget()
     lbl2.grid_forget()
@@ -125,6 +124,7 @@ def connectdef():
     lbl3.grid_forget()
     ent3.grid_forget()
     btn.grid_forget()
+    btn5.grid_forget()
     cht = st.ScrolledText(win, width=60, height=20, font=("Arial", 11), bg="#1a1a1a", fg="#ffffff")
     cht.config(state="disabled")
     cht.grid(column=0, row=0, columnspan=4)
@@ -135,6 +135,7 @@ def connectdef():
 
     # Listening to Server and Sending Nickname
     def receive():
+        global client
         time.sleep(0.01)
         while True:
             try:
@@ -185,6 +186,19 @@ def connectdef():
     write_thread.start()
 
     win.title("rChat - Connected to " + host + ":" + str(port) + " as " + nickname)
+
+    def exitt():
+        global client
+        client.close()
+        try:
+            client.send("".encode('ascii'))
+        except:
+            sys.exit()
+
+    btn3.config(font=("Arial", 10), command=exitt)
+    btn3.grid(column=2, row=1)
+
+
 
 
 btn = Button(win, text="Connect", command=connectdef, bg="#1a1a1a", fg="#ffffff", font=("Arial", 13))
