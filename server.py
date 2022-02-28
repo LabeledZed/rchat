@@ -4,7 +4,6 @@ import time
 import os
 from contextlib import redirect_stdout
 
-# Connection Data
 def extract_ip():
     st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
@@ -17,6 +16,7 @@ def extract_ip():
     return IP
 host = (extract_ip())
 
+# Connection Data
 if not os.path.isfile('port.ak47'):
     unu = open("port.ak47", "x")
     with open('port.ak47', 'w') as f:
@@ -31,7 +31,6 @@ else:
             with redirect_stdout(f):
                 print(8080)
         portb = 8080
-
 q1 = input("Do you want to use the most recent port used (" + str(int(portb)) + ")? (Y/N): ")
 if q1 == "y" or q1 == "Y":
     with open('port.ak47') as f:
@@ -45,7 +44,6 @@ elif q1 == "n" or q1 == "N":
                 print(port)
 else:
     exit("Program expected Y/N, got OTHER instead")
-
 print("Server started on port " + str(port))
 with open('chatlog.ak47', 'a') as f:
     f.write("\n\nrChat (Version 1.01-beta) - "+time.ctime()+"\n")
@@ -69,6 +67,7 @@ def broadcast(message):
 # Handling Messages From Clients
 def handle(client):
     while True:
+        time.sleep(0.01)
         try:
             # Broadcasting Messages
             message = client.recv(1024)
@@ -79,7 +78,7 @@ def handle(client):
             clients.remove(client)
             client.close()
             nickname = nicknames[index]
-            broadcast('{} left!'.format(nickname).encode('ascii'))
+            broadcast('{} disconnected!'.format(nickname).encode('ascii'))
             nicknames.remove(nickname)
             break
 # Receiving / Listening Function
@@ -95,16 +94,14 @@ def receive():
         nicknames.append(nickname)
         clients.append(client)
 
-
-
         # Print And Broadcast Nickname
-        print("Nickname is {}".format(nickname))
-        broadcast("{} joined!".format(nickname).encode('ascii'))
-        client.send('Connected to server!'.encode('ascii'))
+        if not nickname[0] == "G" and not nickname[1] == "E" and not nickname[2] == "T":
+            print("Nickname is {}".format(nickname))
+            broadcast("{} joined!".format(nickname).encode('ascii'))
+            client.send('Connected to server!'.encode('ascii'))
 
-        with open('chatlog.ak47', 'r') as f:
-            client.send(f.read().encode('ascii'))
-
+            with open('chatlog.ak47', 'r') as f:
+                client.send(f.read().encode('ascii'))
 
         # Start Handling Thread For Client
         thread = threading.Thread(target=handle, args=(client,))
