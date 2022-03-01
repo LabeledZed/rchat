@@ -1,24 +1,37 @@
-import socket
-import threading
-from tkinter import *
-import tkinter.scrolledtext as st
 import random
-import time
+import socket
 import sys
-import psutil
 import os
+import threading
+import time
+import tkinter.scrolledtext as st
+from tkinter import *
+import psutil
+from pypresence import Presence
+
+# os.chdir(sys._MEIPASS) - Remove the comment when compiling
 
 win = Tk()
 win.config(bg="#1a1a1a")
 win.title("rChat Beta Client")
+win.iconbitmap("included\\rccc.ico")
 win.resizable(False, False)
+
+RPC = Presence(948257405169446952)
+try:
+    RPC.connect()
+except:
+    sys.exit()
+
+RPC.update(details="In the main menu",
+           large_image='http://cdn.discordapp.com/attachments/879417908281901146/948264378002735185/rcc.png',
+           large_text="rChat Client v1.02-beta", start=int(time.time()))
 
 
 def disable_event():
     pass
 
 
-lipp = False
 hostb = "localip"
 
 win.protocol("WM_DELETE_WINDOW", disable_event)
@@ -35,7 +48,7 @@ def cpr(p):
 
 
 # Choosing Nickname
-lbl0 = Label(win, text="rChat Beta Client v1.01", bg="#1a1a1a", fg="#8cb8ff", font=("Arial", 16))
+lbl0 = Label(win, text="rChat Beta Client v1.02", bg="#1a1a1a", fg="#8cb8ff", font=("Arial", 16))
 lbl = Label(win, text="Nickname:", bg="#1a1a1a", fg="#ffffff", font=("Arial", 13))
 ent = Entry(win, bg="#1a1a1a", fg="#ffffff", font=("Arial", 13))
 lbl2 = Label(win, text="Server IP (blank for default):", bg="#1a1a1a", fg="#ffffff", font=("Arial", 13))
@@ -53,7 +66,6 @@ ent3.grid(column=0, row=7)
 
 def lip():
     global hostb
-    global lipp
 
     def extract_ip():
         st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -67,7 +79,6 @@ def lip():
         return IP
 
     hostb = (extract_ip())
-    lipp = True
     ent2.delete(0, END)
     ent2.insert(0, hostb)
 
@@ -79,6 +90,8 @@ ent.focus()
 
 
 def exittt():
+    global RPC
+    RPC.close()
     sys.exit()
 
 
@@ -95,21 +108,18 @@ win.bind("<Return>", yesont)
 
 def connectdef():
     global client
+    global RPC
     global win
     global hostb
-    global lipp
     if ent.get() == "":
         nickname = "User" + str(random.randint(100, 999))
     else:
         nickname = ent.get()
 
-    if lipp:
-        host = hostb
+    if ent2.get() == "":
+        host = "labeledzed.ddns.net"
     else:
-        if ent2.get() == "":
-            host = "labeledzed.ddns.net"
-        else:
-            host = ent2.get()
+        host = ent2.get()
 
     if ent3.get() == "":
         port = 64738
@@ -128,6 +138,9 @@ def connectdef():
     cht = st.ScrolledText(win, width=60, height=20, font=("Arial", 11), bg="#1a1a1a", fg="#ffffff")
     cht.config(state="disabled")
     cht.grid(column=0, row=0, columnspan=4)
+    RPC.update(details="Chatting as " + nickname,
+               large_image="http://cdn.discordapp.com/attachments/879417908281901146/948264378002735185/rcc.png",
+               large_text="rChat Client v1.02-beta", start=int(time.time()))
 
     # Connecting To Server
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -189,16 +202,17 @@ def connectdef():
 
     def exitt():
         global client
+        global RPC
         client.close()
+        RPC.close()
         try:
             client.send("".encode('ascii'))
         except:
+            RPC.close()
             sys.exit()
 
     btn3.config(font=("Arial", 10), command=exitt)
     btn3.grid(column=2, row=1)
-
-
 
 
 btn = Button(win, text="Connect", command=connectdef, bg="#1a1a1a", fg="#ffffff", font=("Arial", 13))
