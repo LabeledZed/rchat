@@ -1,9 +1,9 @@
-import threading
-import socket
-import time
 import os
-from contextlib import redirect_stdout
 import shutil
+import socket
+import threading
+import time
+from contextlib import redirect_stdout
 from datetime import datetime
 
 
@@ -50,16 +50,21 @@ elif q1 == "n" or q1 == "N":
 else:
     exit("Program expected Y/N, got OTHER instead")
 print("rChat Server has started on port " + str(port))
-now = datetime.now()
-if not os.path.exists(os.getcwd() + "\\chatlogs"):
-    os.mkdir(os.getcwd() + "\\chatlogs")
-dt_string = now.strftime("%d-%m-%Y-%H-%M-%S")
-src = os.getcwd() + "\\chatlog.ak47"
-dst = os.getcwd() + "\\chatlogs\\chatlog-" + dt_string + ".ak47"
-shutil.copy2(src, dst)
-os.remove(os.getcwd() + "\\chatlog.ak47")
+now = datetime.now().astimezone()
+if os.path.isfile(os.getcwd() + "\\chatlog.ak47"):
+    if not os.path.exists(os.getcwd() + "\\chatlogs"):
+        os.mkdir(os.getcwd() + "\\chatlogs")
+    dt_string = now.strftime("%d-%m-%Y-%H-%M-%S")
+    src = os.getcwd() + "\\chatlog.ak47"
+    dst = os.getcwd() + "\\chatlogs\\chatlog-" + dt_string + ".ak47"
+    shutil.copy2(src, dst)
+    os.remove(os.getcwd() + "\\chatlog.ak47")
+else:
+    dvar = open("chatlog.ak47", "x")
+tm = now.strftime("%A, %d %B %Y")
+tm2 = now.strftime("%I:%M:%S %p (%Z)")
 with open('chatlog.ak47', 'a') as f:
-    f.write("\n\nrChat (Version 1.01-beta) - " + time.ctime() + "\n")
+    f.write("\n\nrChat Server (Version 1.02-beta)\n" + tm + "\nServer is online since " + tm2 + "\n")
 # Starting Server
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((host, port))
