@@ -14,7 +14,6 @@ from pypresence import Presence
 win = Tk()
 win.config(bg="#1a1a1a")
 win.title("rChat Beta Client")
-win.iconbitmap("included\\rccc.ico")
 win.resizable(False, False)
 
 RPC = Presence(948257405169446952)
