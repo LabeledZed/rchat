@@ -3,6 +3,9 @@ import socket
 import time
 import os
 from contextlib import redirect_stdout
+import shutil
+from datetime import datetime
+
 
 def extract_ip():
     st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -14,6 +17,8 @@ def extract_ip():
     finally:
         st.close()
     return IP
+
+
 host = (extract_ip())
 
 # Connection Data
@@ -44,26 +49,38 @@ elif q1 == "n" or q1 == "N":
                 print(port)
 else:
     exit("Program expected Y/N, got OTHER instead")
-print("Server started on port " + str(port))
+print("rChat Server has started on port " + str(port))
+now = datetime.now()
+if not os.path.exists(os.getcwd() + "\\chatlogs"):
+    os.mkdir(os.getcwd() + "\\chatlogs")
+dt_string = now.strftime("%d-%m-%Y-%H-%M-%S")
+src = os.getcwd() + "\\chatlog.ak47"
+dst = os.getcwd() + "\\chatlogs\\chatlog-" + dt_string + ".ak47"
+shutil.copy2(src, dst)
+os.remove(os.getcwd() + "\\chatlog.ak47")
 with open('chatlog.ak47', 'a') as f:
-    f.write("\n\nrChat (Version 1.01-beta) - "+time.ctime()+"\n")
+    f.write("\n\nrChat (Version 1.01-beta) - " + time.ctime() + "\n")
 # Starting Server
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((host, port))
 server.listen()
-msg=""
+msg = ""
 # Lists For Clients and Their Nicknames
 clients = []
 nicknames = []
+
+
 # Sending Messages To All Connected Clients
 def broadcast(message):
     global msg
     for client in clients:
         client.send(message)
     with open('chatlog.ak47', 'a') as f:
-        g = str(message).replace("b'","")
-        g = g.replace("'","")
+        g = str(message).replace("b'", "")
+        g = g.replace("'", "")
         f.write("\n" + g)
+
+
 # Handling Messages From Clients
 def handle(client):
     while True:
@@ -81,6 +98,8 @@ def handle(client):
             broadcast('{} disconnected!'.format(nickname).encode('ascii'))
             nicknames.remove(nickname)
             break
+
+
 # Receiving / Listening Function
 def receive():
     while True:
@@ -106,5 +125,7 @@ def receive():
         # Start Handling Thread For Client
         thread = threading.Thread(target=handle, args=(client,))
         thread.start()
+
+
 receive()
 broadcast(time.ctime())
