@@ -9,22 +9,13 @@ from tkinter import *
 import psutil
 from pypresence import Presence
 
-# os.chdir(sys._MEIPASS) - Remove the comment when compiling
+os.chdir(sys._MEIPASS)
 
 win = Tk()
 win.config(bg="#1a1a1a")
 win.title("rChat Beta Client")
 win.resizable(False, False)
-
-RPC = Presence(948257405169446952)
-try:
-    RPC.connect()
-except:
-    sys.exit()
-
-RPC.update(details="In the main menu",
-           large_image='http://cdn.discordapp.com/attachments/879417908281901146/948264378002735185/rcc.png',
-           large_text="rChat Client v1.02-beta", start=int(time.time()))
+win.iconbitmap("included\\rccc.ico")
 
 
 def disable_event():
@@ -45,6 +36,17 @@ def cpr(p):
             pass
     return False
 
+
+if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
+    RPC = Presence(948257405169446952)
+    try:
+        RPC.connect()
+    except:
+        sys.exit()
+
+    RPC.update(details="In the main menu",
+               large_image='http://cdn.discordapp.com/attachments/879417908281901146/948264378002735185/rcc.png',
+               large_text="rChat Client v1.02-beta", start=int(time.time()))
 
 # Choosing Nickname
 lbl0 = Label(win, text="rChat Beta Client v1.02", bg="#1a1a1a", fg="#8cb8ff", font=("Arial", 16))
@@ -89,8 +91,9 @@ ent.focus()
 
 
 def exittt():
-    global RPC
-    RPC.close()
+    if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
+        global RPC
+        RPC.close()
     sys.exit()
 
 
@@ -107,9 +110,10 @@ win.bind("<Return>", yesont)
 
 def connectdef():
     global client
-    global RPC
     global win
     global hostb
+    if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
+        global RPC
     if ent.get() == "":
         nickname = "User" + str(random.randint(100, 999))
     else:
@@ -137,9 +141,10 @@ def connectdef():
     cht = st.ScrolledText(win, width=60, height=20, font=("Arial", 11), bg="#1a1a1a", fg="#ffffff")
     cht.config(state="disabled")
     cht.grid(column=0, row=0, columnspan=4)
-    RPC.update(details="Chatting as " + nickname,
-               large_image="http://cdn.discordapp.com/attachments/879417908281901146/948264378002735185/rcc.png",
-               large_text="rChat Client v1.02-beta", start=int(time.time()))
+    if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
+        RPC.update(details="Chatting as " + nickname,
+                   large_image="http://cdn.discordapp.com/attachments/879417908281901146/948264378002735185/rcc.png",
+                   large_text="rChat Client v1.02-beta", start=int(time.time()))
 
     # Connecting To Server
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -201,13 +206,15 @@ def connectdef():
 
     def exitt():
         global client
-        global RPC
         client.close()
-        RPC.close()
+        if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
+            global RPC
+            RPC.close()
         try:
             client.send("".encode('ascii'))
         except:
-            RPC.close()
+            if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
+                RPC.close()
             sys.exit()
 
     btn3.config(font=("Arial", 10), command=exitt)
