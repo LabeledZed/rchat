@@ -9,13 +9,12 @@ from tkinter import *
 import psutil
 from pypresence import Presence
 
-os.chdir(sys._MEIPASS)
+# os.chdir(sys._MEIPASS) - Remove the comment when compiling
 
 win = Tk()
 win.config(bg="#1a1a1a")
 win.title("rChat Beta Client")
 win.resizable(False, False)
-win.iconbitmap("included\\rccc.ico")
 
 
 def disable_event():
