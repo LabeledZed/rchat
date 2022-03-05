@@ -1,8 +1,8 @@
 import random
 import socket
-import sys
 from contextlib import redirect_stdout
 import os
+from sys import exit
 import threading
 import time
 import tkinter.scrolledtext as st
@@ -37,16 +37,6 @@ else:
 if not os.path.isfile('username.ak47'):
     unu = open("username.ak47", "x")
 
-RPC = Presence(948257405169446952)
-try:
-    RPC.connect()
-except Exception:
-    sys.exit()
-
-RPC.update(details="In the main menu",
-           large_image='http://cdn.discordapp.com/attachments/879417908281901146/948264378002735185/rcc.png',
-           large_text="rChat Client v1.02-beta", start=int(time.time()))
-
 
 def disable_event():
     pass
@@ -66,6 +56,17 @@ def cpr(p):
             pass
     return False
 
+
+if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
+    RPC = Presence(948257405169446952)
+    try:
+        RPC.connect()
+    except Exception:
+        exit()
+
+    RPC.update(details="In the main menu",
+               large_image='http://cdn.discordapp.com/attachments/879417908281901146/948264378002735185/rcc.png',
+               large_text="rChat Client v1.02-beta", start=int(time.time()))
 
 # Choosing Nickname
 lbl0 = Label(win, text="rChat Beta Client v1.02", bg="#1a1a1a", fg="#8cb8ff", font=("Arial", 16))
@@ -87,6 +88,7 @@ ent3.grid(column=0, row=7)
 with open('username.ak47') as f:
     usern = f.read().strip('\n')
 ent.insert(INSERT, usern)
+
 
 def lip():
     global hostb
@@ -114,9 +116,10 @@ ent.focus()
 
 
 def exittt():
-    global RPC
-    RPC.close()
-    sys.exit()
+    if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
+        global RPC
+        RPC.close()
+    exit()
 
 
 def yesont(event):
@@ -129,11 +132,12 @@ win.bind("<Return>", yesont)
 def connectdef():
     global client
     global untrue
-    global RPC
     global win
     global cht
     global hostb
     global pred
+    if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
+        global RPC
     if ent.get() == "":
         nickname = "User" + str(random.randint(100, 999))
     else:
@@ -162,9 +166,11 @@ def connectdef():
     btn5.grid_forget()
 
     cht.grid(column=0, row=0, columnspan=4)
-    RPC.update(details="Chatting as " + nickname,
-               large_image="http://cdn.discordapp.com/attachments/879417908281901146/948264378002735185/rcc.png",
-               large_text="rChat Client v1.02-beta", start=int(time.time()))
+    if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
+        global RPC
+        RPC.update(details="Chatting as " + nickname,
+                   large_image="http://cdn.discordapp.com/attachments/879417908281901146/948264378002735185/rcc.png",
+                   large_text="rChat Client v1.02-beta", start=int(time.time()))
 
     # Connecting To Server
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -197,6 +203,7 @@ def connectdef():
         ent4.grid(column=0, row=1)
         btn2.grid(column=1, row=1)
         ent4.focus()
+
         def sendd():
             client.send(message.encode('ascii'))
             ent4.delete(0, END)
@@ -222,15 +229,16 @@ def connectdef():
 
     def exitt():
         global client
-        global RPC
         global untrue
         client.close()
         untrue = False
         try:
             client.send("".encode('ascii'))
         except Exception:
-            RPC.close()
-            sys.exit()
+            if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
+                global RPC
+                RPC.close()
+            exit()
 
     menubar.delete("Exit")
     menubar.add_command(label="Exit", command=exitt)
@@ -244,6 +252,7 @@ cht.config(state="disabled")
 
 ent4 = Entry(win, width=65, bg="#1a1a1a", fg="#ffffff", font=("Arial", 10))
 btn2 = Button(win, text="Send", command=None, bg="#1a1a1a", fg="#ffffff", font=("Arial", 10))
+
 
 def dark():
     lbl0.config(bg="#1a1a1a", fg="#8cb8ff")
@@ -260,6 +269,7 @@ def dark():
     btn2.config(bg="#1a1a1a", fg="#ffffff")
     ent4.config(bg="#1a1a1a", fg="#ffffff")
 
+
 def light():
     lbl0.config(bg="#ffffff", fg="#2e7eff")
     lbl.config(bg="#ffffff", fg="#000000")
@@ -274,6 +284,7 @@ def light():
     win.config(bg="#ffffff")
     btn2.config(bg="#cccccc", fg="#000000")
     ent4.config(bg="#cccccc", fg="#000000")
+
 
 def darkmode():
     global pred
@@ -327,6 +338,7 @@ def darkmode():
                 with redirect_stdout(f):
                     print(1)
 
+
 menubar = Menu(win)
 viewmenu = Menu(menubar, tearoff=0)
 menubar.add_cascade(label="View", menu=viewmenu)
@@ -342,6 +354,5 @@ if setup1:
         light()
         viewmenu.add_checkbutton(label="Darkmode", onvalue=1, offvalue=0, variable=darkmodee, command=darkmode)
         setup1 = False
-
 
 win.mainloop()
