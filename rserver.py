@@ -68,7 +68,7 @@ else:
 tm = now.strftime("%A, %d %B %Y")
 tm2 = now.strftime("%I:%M:%S %p (%Z)")
 with open('chatlog.ak47', 'a', encoding='utf-8') as f:
-    f.write("\n\nrChat Server (Version 1.02-beta)\n" + tm + "\nServer is online since " + tm2 + "\n")
+    f.write("\n\nrChat Server (Version 1.10-beta)\n" + tm + "\nServer is online since " + tm2 + "\n")
 # Starting Server
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((host, port))
