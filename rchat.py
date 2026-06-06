@@ -16,6 +16,10 @@ win.iconbitmap("rccc.ico")
 win.resizable(False, False)
 untrue = True
 setup1 = True
+client = None
+receive_thread = None
+write_thread = None
+RPC = None
 
 completeName = 'C:\\Users\\' + os.getlogin() + '\\AppData\\Roaming\\rChat'
 if not os.path.exists(completeName):
@@ -37,7 +41,8 @@ if not os.path.isfile(os.path.join(completeName, 'username.ak47')):
 
 
 def disable_event():
-    pass
+    """Handle window close button"""
+    on_exit()
 
 
 hostb = "localip"
@@ -59,12 +64,14 @@ if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
     RPC = Presence(948257405169446952)
     try:
         RPC.connect()
-    except Exception:
-        exit()
+    except Exception as e:
+        print(f"Discord RPC connection failed: {e}")
+        RPC = None
 
-    RPC.update(details="In the main menu",
-               large_image='http://cdn.discordapp.com/attachments/879417908281901146/948264378002735185/rcc.png',
-               large_text="rChat Client v1.10-beta", start=int(time.time()))
+    if RPC:
+        RPC.update(details="In the main menu",
+                   large_image='http://cdn.discordapp.com/attachments/879417908281901146/948264378002735185/rcc.png',
+                   large_text="rChat Client v1.10-beta", start=int(time.time()))
 
 # Choosing Nickname
 lbl0 = Label(win, text="rChat Beta Client v1.10", bg="#1a1a1a", fg="#8cb8ff", font=("Arial", 16))
@@ -113,11 +120,42 @@ if cpr('rserver.exe'):
 ent.focus()
 
 
-def exittt():
-    if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
-        global RPC
-        RPC.close()
-    exit()
+def on_exit():
+    """Properly cleanup and exit the application"""
+    global client
+    global untrue
+    global RPC
+    global receive_thread
+    global write_thread
+    
+    try:
+        untrue = False
+        
+        # Close client socket if connected
+        if client:
+            try:
+                client.close()
+            except Exception as e:
+                print(f"Error closing client socket: {e}")
+        
+        # Close Discord RPC
+        if RPC:
+            try:
+                RPC.close()
+            except Exception as e:
+                print(f"Error closing Discord RPC: {e}")
+        
+        # Give threads a moment to finish
+        if receive_thread and receive_thread.is_alive():
+            receive_thread.join(timeout=1.0)
+        if write_thread and write_thread.is_alive():
+            write_thread.join(timeout=1.0)
+        
+        # Destroy the window
+        win.destroy()
+    except Exception as e:
+        print(f"Error during exit: {e}")
+        exit()
 
 
 def yesont(event):
@@ -134,8 +172,10 @@ def connectdef():
     global cht
     global hostb
     global pred
-    if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
-        global RPC
+    global RPC
+    global receive_thread
+    global write_thread
+    
     if ent.get() == "":
         nickname = "User" + str(random.randint(100, 999))
     else:
@@ -163,55 +203,79 @@ def connectdef():
     btn5.grid_forget()
 
     cht.grid(column=0, row=0, columnspan=4)
-    if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
-        global RPC
-        RPC.update(details="Chatting as " + nickname,
-                   large_image="http://cdn.discordapp.com/attachments/879417908281901146/948264378002735185/rcc.png",
-                   large_text="rChat Client v1.10-beta", start=int(time.time()))
+    if RPC:
+        try:
+            RPC.update(details="Chatting as " + nickname,
+                       large_image="http://cdn.discordapp.com/attachments/879417908281901146/948264378002735185/rcc.png",
+                       large_text="rChat Client v1.10-beta", start=int(time.time()))
+        except Exception as e:
+            print(f"Error updating Discord RPC: {e}")
 
     # Connecting To Server
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect((host, port))
+    try:
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client.connect((host, port))
+    except Exception as e:
+        print(f"Connection error: {e}")
+        return
 
     # Listening to Server and Sending Nickname
     def receive():
         global client
+        global untrue
         time.sleep(0.01)
-        while True:
+        while untrue and client:
             try:
                 # Receive Message From Server
                 # If 'NICK' Send Nickname
                 message = client.recv(1024).decode('utf-8')
+                if not message:
+                    break
                 if message == 'NICK':
-                    client.send(nickname.encode('utf-8'))
+                    try:
+                        client.send(nickname.encode('utf-8'))
+                    except Exception as e:
+                        print(f"Error sending nickname: {e}")
+                        break
                 else:
-                    cht.config(state="normal")
-                    cht.insert(INSERT, "\n" + message)
-                    cht.see(END)
-                    cht.config(state="disabled")
-            except:
-                # Close Connection When Error
-                print("An error occurred!")
-                client.close()
+                    try:
+                        cht.config(state="normal")
+                        cht.insert(INSERT, "\n" + message)
+                        cht.see(END)
+                        cht.config(state="disabled")
+                    except Exception as e:
+                        print(f"Error updating chat: {e}")
+                        break
+            except Exception as e:
+                print(f"Receive error: {e}")
                 break
 
     # Sending Messages To Server
     def write():
+        global untrue
         ent4.grid(column=0, row=1)
         btn2.grid(column=1, row=1)
         ent4.focus()
 
         def sendd():
+            global client
             msg_text = ent4.get()
-            if msg_text.strip():  # Only send non-empty messages
-                client.send(msg_text.encode('utf-8'))
-                ent4.delete(0, END)
+            if msg_text.strip() and client:  # Only send non-empty messages
+                try:
+                    client.send(msg_text.encode('utf-8'))
+                    ent4.delete(0, END)
+                except Exception as e:
+                    print(f"Error sending message: {e}")
 
         def senddd(event):
+            global client
             msg_text = ent4.get()
-            if msg_text.strip():  # Only send non-empty messages
-                client.send(msg_text.encode('utf-8'))
-                ent4.delete(0, END)
+            if msg_text.strip() and client:  # Only send non-empty messages
+                try:
+                    client.send(msg_text.encode('utf-8'))
+                    ent4.delete(0, END)
+                except Exception as e:
+                    print(f"Error sending message: {e}")
 
         win.bind("<Return>", senddd)
         btn2.config(command=sendd)
@@ -219,26 +283,16 @@ def connectdef():
             time.sleep(0.01)
 
     # Starting Threads For Listening And Writing
-    receive_thread = threading.Thread(target=receive)
+    receive_thread = threading.Thread(target=receive, daemon=True)
     receive_thread.start()
 
-    write_thread = threading.Thread(target=write)
+    write_thread = threading.Thread(target=write, daemon=True)
     write_thread.start()
 
     win.title("rChat - Connected to " + host + ":" + str(port) + " as " + nickname)
 
     def exitt():
-        global client
-        global untrue
-        client.close()
-        untrue = False
-        try:
-            client.send("".encode('utf-8'))
-        except Exception:
-            if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
-                global RPC
-                RPC.close()
-            exit()
+        on_exit()
 
     menubar.delete("Exit")
     menubar.add_command(label="Exit", command=exitt)
@@ -340,7 +394,7 @@ viewmenu = Menu(menubar, tearoff=0)
 menubar.add_cascade(label="View", menu=viewmenu)
 darkmodee = IntVar()
 win.config(menu=menubar)
-menubar.add_command(label="Exit", command=exittt)
+menubar.add_command(label="Exit", command=on_exit)
 if setup1:
     if pred == 0:
         dark()
