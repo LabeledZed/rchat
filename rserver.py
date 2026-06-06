@@ -66,7 +66,7 @@ else:
     dvar = open("chatlog.ak47", "x")
 tm = now.strftime("%A, %d %B %Y")
 tm2 = now.strftime("%I:%M:%S %p (%Z)")
-with open('chatlog.ak47', 'a') as f:
+with open('chatlog.ak47', 'a', encoding='utf-8') as f:
     f.write("\n\nrChat Server (Version 1.02-beta)\n" + tm + "\nServer is online since " + tm2 + "\n")
 # Starting Server
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -83,9 +83,11 @@ def broadcast(message):
     global msg
     for client in clients:
         client.send(message)
-    with open('chatlog.ak47', 'a') as f:
-        g = str(message).replace("b'", "")
-        g = g.replace("'", "")
+    with open('chatlog.ak47', 'a', encoding='utf-8') as f:
+        if isinstance(message, bytes):
+            g = message.decode('utf-8')
+        else:
+            g = str(message)
         f.write("\n" + g)
 
 
@@ -103,7 +105,7 @@ def handle(client):
             clients.remove(client)
             client.close()
             nickname = nicknames[index]
-            broadcast('{} disconnected!'.format(nickname).encode('ascii'))
+            broadcast('{} disconnected!'.format(nickname).encode('utf-8'))
             nicknames.remove(nickname)
             break
 
@@ -116,19 +118,19 @@ def receive():
         print("Connected with {}".format(str(address)))
 
         # Request And Store Nickname
-        client.send('NICK'.encode('ascii'))
-        nickname = client.recv(1024).decode('ascii')
+        client.send('NICK'.encode('utf-8'))
+        nickname = client.recv(1024).decode('utf-8')
         nicknames.append(nickname)
         clients.append(client)
 
         # Print And Broadcast Nickname
         if not nickname[0] == "G" and not nickname[1] == "E" and not nickname[2] == "T":
             print("Nickname is {}".format(nickname))
-            broadcast("{} joined!".format(nickname).encode('ascii'))
-            client.send('Connected to server!'.encode('ascii'))
+            broadcast("{} joined!".format(nickname).encode('utf-8'))
+            client.send('Connected to server!'.encode('utf-8'))
 
-            with open('chatlog.ak47', 'r') as f:
-                client.send(f.read().encode('ascii'))
+            with open('chatlog.ak47', 'r', encoding='utf-8') as f:
+                client.send(f.read().encode('utf-8'))
 
         # Start Handling Thread For Client
         thread = threading.Thread(target=handle, args=(client,))
@@ -136,4 +138,4 @@ def receive():
 
 
 receive()
-broadcast(time.ctime())
+broadcast(time.ctime().encode('utf-8'))
