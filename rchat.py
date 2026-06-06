@@ -24,14 +24,13 @@ if not os.path.exists(completeName):
 
 if not os.path.isfile(os.path.join(completeName, 'darkmode.ak47')):
     unu = open(os.path.join(completeName, 'darkmode.ak47'), "x")
-    with open(os.path.join(completeName, 'darkmode.ak47'), 'w') as f:
-        with redirect_stdout(f):
-            print(0)
-    with open(os.path.join(completeName, 'darkmode.ak47')) as f:
+    with open(os.path.join(completeName, 'darkmode.ak47'), 'w', encoding='utf-8') as f:
+        f.write('0')
+    with open(os.path.join(completeName, 'darkmode.ak47'), encoding='utf-8') as f:
         pred = int(f.read())
 
 else:
-    with open(os.path.join(completeName, 'darkmode.ak47')) as f:
+    with open(os.path.join(completeName, 'darkmode.ak47'), encoding='utf-8') as f:
         pred = int(f.read())
 
 if not os.path.isfile(os.path.join(completeName, 'username.ak47')):
@@ -85,7 +84,7 @@ ent2.grid(column=0, row=4)
 lbl3.grid(column=0, row=6)
 ent3.grid(column=0, row=7)
 
-with open(os.path.join(completeName, 'username.ak47')) as f:
+with open(os.path.join(completeName, 'username.ak47'), encoding='utf-8') as f:
     usern = f.read().strip('\n')
 ent.insert(INSERT, usern)
 
@@ -142,9 +141,8 @@ def connectdef():
         nickname = "User" + str(random.randint(100, 999))
     else:
         nickname = ent.get()
-        with open(os.path.join(completeName, 'username.ak47'), 'w') as f:
-            with redirect_stdout(f):
-                print(nickname)
+        with open(os.path.join(completeName, 'username.ak47'), 'w', encoding='utf-8') as f:
+            f.write(nickname)
 
     if ent2.get() == "":
         host = "labeledzed.ddns.net"
@@ -303,9 +301,8 @@ def darkmode():
             cht.insert(INSERT, chttemp)
             cht.see(END)
             cht.config(state="disabled")
-            with open(os.path.join(completeName, 'darkmode.ak47'), 'w') as f:
-                with redirect_stdout(f):
-                    print(0)
+            with open(os.path.join(completeName, 'darkmode.ak47'), 'w', encoding='utf-8') as f:
+                f.write('0')
         elif darkmodee.get() == 1:
             light()
             cht.config(state="normal")
@@ -314,9 +311,8 @@ def darkmode():
             cht.insert(INSERT, chttemp)
             cht.see(END)
             cht.config(state="disabled")
-            with open(os.path.join(completeName, 'darkmode.ak47'), 'w') as f:
-                with redirect_stdout(f):
-                    print(1)
+            with open(os.path.join(completeName, 'darkmode.ak47'), 'w', encoding='utf-8') as f:
+                f.write('1')
     else:
         if darkmodee.get() == 1:
             dark()
@@ -326,9 +322,8 @@ def darkmode():
             cht.insert(INSERT, chttemp)
             cht.see(END)
             cht.config(state="disabled")
-            with open(os.path.join(completeName, 'darkmode.ak47'), 'w') as f:
-                with redirect_stdout(f):
-                    print(0)
+            with open(os.path.join(completeName, 'darkmode.ak47'), 'w', encoding='utf-8') as f:
+                f.write('0')
         elif darkmodee.get() == 0:
             light()
             cht.config(state="normal")
@@ -337,9 +332,8 @@ def darkmode():
             cht.insert(INSERT, chttemp)
             cht.see(END)
             cht.config(state="disabled")
-            with open(os.path.join(completeName, 'darkmode.ak47'), 'w') as f:
-                with redirect_stdout(f):
-                    print(1)
+            with open(os.path.join(completeName, 'darkmode.ak47'), 'w', encoding='utf-8') as f:
+                f.write('1')
 
 
 menubar = Menu(win)
