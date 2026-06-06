@@ -130,6 +130,8 @@ def handle(client, nickname):
             # Broadcast to other clients (NOT back to sender)
             broadcast_message = f"{nickname}: {msg_text}".encode('utf-8')
             broadcast(broadcast_message, sender_client=client)
+            client.send(broadcast_message)  # Send back to sender so they see their own message
+            
             
         except Exception as e:
             break
