@@ -1,6 +1,5 @@
 import random
 import socket
-from contextlib import redirect_stdout
 import os
 from sys import exit
 import threading
@@ -65,10 +64,10 @@ if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
 
     RPC.update(details="In the main menu",
                large_image='http://cdn.discordapp.com/attachments/879417908281901146/948264378002735185/rcc.png',
-               large_text="rChat Client v1.02-beta", start=int(time.time()))
+               large_text="rChat Client v1.10-beta", start=int(time.time()))
 
 # Choosing Nickname
-lbl0 = Label(win, text="rChat Beta Client v1.02", bg="#1a1a1a", fg="#8cb8ff", font=("Arial", 16))
+lbl0 = Label(win, text="rChat Beta Client v1.10", bg="#1a1a1a", fg="#8cb8ff", font=("Arial", 16))
 lbl = Label(win, text="Nickname:", bg="#1a1a1a", fg="#ffffff", font=("Arial", 13))
 ent = Entry(win, bg="#1a1a1a", fg="#ffffff", font=("Arial", 13))
 lbl2 = Label(win, text="Server IP (blank for default):", bg="#1a1a1a", fg="#ffffff", font=("Arial", 13))
@@ -168,7 +167,7 @@ def connectdef():
         global RPC
         RPC.update(details="Chatting as " + nickname,
                    large_image="http://cdn.discordapp.com/attachments/879417908281901146/948264378002735185/rcc.png",
-                   large_text="rChat Client v1.02-beta", start=int(time.time()))
+                   large_text="rChat Client v1.10-beta", start=int(time.time()))
 
     # Connecting To Server
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
