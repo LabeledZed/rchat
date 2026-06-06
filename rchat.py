@@ -12,7 +12,12 @@ from pypresence import Presence
 win = Tk()
 win.config(bg="#1a1a1a")
 win.title("rChat Beta Client")
-win.iconbitmap("rccc.ico")
+if getattr(sys, 'frozen', False):
+    import pyi_splash
+    pyi_splash.close()
+    win.iconbitmap(os.path.join(sys._MEIPASS, "incl\\rccc.ico"))
+else:
+    win.iconbitmap("incl\\rccc.ico")
 win.resizable(False, False)
 untrue = True
 setup1 = True
