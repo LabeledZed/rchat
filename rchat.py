@@ -21,21 +21,21 @@ setup1 = True
 completeName = 'C:\\Users\\' + os.getlogin() + '\\AppData\\Roaming\\rChat'
 if not os.path.exists(completeName):
     os.mkdir(completeName)
-os.chdir(completeName)
-if not os.path.isfile('darkmode.ak47'):
-    unu = open("darkmode.ak47", "x")
-    with open('darkmode.ak47', 'w') as f:
+
+if not os.path.isfile(os.path.join(completeName, 'darkmode.ak47')):
+    unu = open(os.path.join(completeName, 'darkmode.ak47'), "x")
+    with open(os.path.join(completeName, 'darkmode.ak47'), 'w') as f:
         with redirect_stdout(f):
             print(0)
-    with open('darkmode.ak47') as f:
+    with open(os.path.join(completeName, 'darkmode.ak47')) as f:
         pred = int(f.read())
 
 else:
-    with open('darkmode.ak47') as f:
+    with open(os.path.join(completeName, 'darkmode.ak47')) as f:
         pred = int(f.read())
 
-if not os.path.isfile('username.ak47'):
-    unu = open("username.ak47", "x")
+if not os.path.isfile(os.path.join(completeName, 'username.ak47')):
+    unu = open(os.path.join(completeName, 'username.ak47'), "x")
 
 
 def disable_event():
@@ -85,7 +85,7 @@ ent2.grid(column=0, row=4)
 lbl3.grid(column=0, row=6)
 ent3.grid(column=0, row=7)
 
-with open('username.ak47') as f:
+with open(os.path.join(completeName, 'username.ak47')) as f:
     usern = f.read().strip('\n')
 ent.insert(INSERT, usern)
 
@@ -142,7 +142,7 @@ def connectdef():
         nickname = "User" + str(random.randint(100, 999))
     else:
         nickname = ent.get()
-        with open('username.ak47', 'w') as f:
+        with open(os.path.join(completeName, 'username.ak47'), 'w') as f:
             with redirect_stdout(f):
                 print(nickname)
 
@@ -303,7 +303,7 @@ def darkmode():
             cht.insert(INSERT, chttemp)
             cht.see(END)
             cht.config(state="disabled")
-            with open('darkmode.ak47', 'w') as f:
+            with open(os.path.join(completeName, 'darkmode.ak47'), 'w') as f:
                 with redirect_stdout(f):
                     print(0)
         elif darkmodee.get() == 1:
@@ -314,7 +314,7 @@ def darkmode():
             cht.insert(INSERT, chttemp)
             cht.see(END)
             cht.config(state="disabled")
-            with open('darkmode.ak47', 'w') as f:
+            with open(os.path.join(completeName, 'darkmode.ak47'), 'w') as f:
                 with redirect_stdout(f):
                     print(1)
     else:
@@ -326,7 +326,7 @@ def darkmode():
             cht.insert(INSERT, chttemp)
             cht.see(END)
             cht.config(state="disabled")
-            with open('darkmode.ak47', 'w') as f:
+            with open(os.path.join(completeName, 'darkmode.ak47'), 'w') as f:
                 with redirect_stdout(f):
                     print(0)
         elif darkmodee.get() == 0:
@@ -337,7 +337,7 @@ def darkmode():
             cht.insert(INSERT, chttemp)
             cht.see(END)
             cht.config(state="disabled")
-            with open('darkmode.ak47', 'w') as f:
+            with open(os.path.join(completeName, 'darkmode.ak47'), 'w') as f:
                 with redirect_stdout(f):
                     print(1)
 
