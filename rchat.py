@@ -184,9 +184,9 @@ def connectdef():
             try:
                 # Receive Message From Server
                 # If 'NICK' Send Nickname
-                message = client.recv(1024).decode('ascii')
+                message = client.recv(1024).decode('utf-8')
                 if message == 'NICK':
-                    client.send(nickname.encode('ascii'))
+                    client.send(nickname.encode('utf-8'))
                 else:
                     cht.config(state="normal")
                     cht.insert(INSERT, "\n" + message)
@@ -205,18 +205,21 @@ def connectdef():
         ent4.focus()
 
         def sendd():
-            client.send(message.encode('ascii'))
-            ent4.delete(0, END)
+            msg_text = ent4.get()
+            if msg_text.strip():  # Only send non-empty messages
+                client.send(msg_text.encode('utf-8'))
+                ent4.delete(0, END)
 
         def senddd(event):
-            client.send(message.encode('ascii'))
-            ent4.delete(0, END)
+            msg_text = ent4.get()
+            if msg_text.strip():  # Only send non-empty messages
+                client.send(msg_text.encode('utf-8'))
+                ent4.delete(0, END)
 
         win.bind("<Return>", senddd)
         btn2.config(command=sendd)
         while untrue:
             time.sleep(0.01)
-            message = '{}: {}'.format(nickname, ent4.get())
 
     # Starting Threads For Listening And Writing
     receive_thread = threading.Thread(target=receive)
@@ -233,7 +236,7 @@ def connectdef():
         client.close()
         untrue = False
         try:
-            client.send("".encode('ascii'))
+            client.send("".encode('utf-8'))
         except Exception:
             if cpr('discord.exe') or cpr('discordptb.exe') or cpr('discordcanary.exe'):
                 global RPC
