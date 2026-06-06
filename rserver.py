@@ -5,6 +5,7 @@ import threading
 import time
 from contextlib import redirect_stdout
 from datetime import datetime
+import json
 
 os.chdir(sys._MEIPASS)
 
@@ -76,38 +77,78 @@ msg = ""
 # Lists For Clients and Their Nicknames
 clients = []
 nicknames = []
+clients_lock = threading.Lock()
 
 
-# Sending Messages To All Connected Clients
-def broadcast(message):
-    global msg
-    for client in clients:
-        client.send(message)
+# Logging function
+def log_message(message):
     with open('chatlog.ak47', 'a', encoding='utf-8') as f:
-        if isinstance(message, bytes):
-            g = message.decode('utf-8')
-        else:
-            g = str(message)
-        f.write("\n" + g)
+        f.write("\n" + message)
+
+
+# Broadcasting function - sends to all clients except sender
+def broadcast(message, sender_client=None):
+    with clients_lock:
+        for client in clients:
+            if client != sender_client:
+                try:
+                    client.send(message)
+                except:
+                    pass
+
+
+# System broadcast - sends to all clients
+def broadcast_system(message):
+    with clients_lock:
+        for client in clients:
+            try:
+                client.send(message)
+            except:
+                pass
 
 
 # Handling Messages From Clients
-def handle(client):
+def handle(client, nickname):
     while True:
         time.sleep(0.01)
         try:
-            # Broadcasting Messages
+            # Receive message from client
             message = client.recv(1024)
-            broadcast(message)
-        except:
-            # Removing And Closing Clients
+            if not message:
+                break
+            
+            # Decode message
+            if isinstance(message, bytes):
+                msg_text = message.decode('utf-8')
+            else:
+                msg_text = str(message)
+            
+            # Log the message
+            log_entry = f"{nickname}: {msg_text}"
+            log_message(log_entry)
+            
+            # Broadcast to other clients (NOT back to sender)
+            broadcast_message = f"{nickname}: {msg_text}".encode('utf-8')
+            broadcast(broadcast_message, sender_client=client)
+            
+        except Exception as e:
+            break
+    
+    # Client disconnected
+    with clients_lock:
+        if client in clients:
             index = clients.index(client)
             clients.remove(client)
             client.close()
-            nickname = nicknames[index]
-            broadcast('{} disconnected!'.format(nickname).encode('utf-8'))
-            nicknames.remove(nickname)
-            break
+            if index < len(nicknames):
+                disconnected_nickname = nicknames[index]
+                nicknames.pop(index)
+            else:
+                disconnected_nickname = nickname
+    
+    disconnect_msg = f"{disconnected_nickname} disconnected!".encode('utf-8')
+    log_message(disconnect_msg.decode('utf-8'))
+    broadcast_system(disconnect_msg)
 
 
 # Receiving / Listening Function
@@ -119,23 +160,39 @@ def receive():
 
         # Request And Store Nickname
         client.send('NICK'.encode('utf-8'))
-        nickname = client.recv(1024).decode('utf-8')
-        nicknames.append(nickname)
-        clients.append(client)
-
-        # Print And Broadcast Nickname
-        if not nickname[0] == "G" and not nickname[1] == "E" and not nickname[2] == "T":
-            print("Nickname is {}".format(nickname))
-            broadcast("{} joined!".format(nickname).encode('utf-8'))
-            client.send('Connected to server!'.encode('utf-8'))
-
+        nickname = client.recv(1024).decode('utf-8').strip()
+        
+        # Validate nickname (reject GET requests)
+        if len(nickname) >= 3 and nickname[0] == "G" and nickname[1] == "E" and nickname[2] == "T":
+            client.close()
+            continue
+        
+        with clients_lock:
+            nicknames.append(nickname)
+            clients.append(client)
+        
+        print("Nickname is {}".format(nickname))
+        
+        # Send welcome message to the new client
+        client.send('Connected to server!'.encode('utf-8'))
+        
+        # Send chat history to new client
+        try:
             with open('chatlog.ak47', 'r', encoding='utf-8') as f:
-                client.send(f.read().encode('utf-8'))
+                history = f.read()
+                client.send(history.encode('utf-8'))
+        except:
+            pass
+        
+        # Broadcast join message to other clients
+        join_msg = "{} joined!".format(nickname).encode('utf-8')
+        log_message(join_msg.decode('utf-8'))
+        broadcast(join_msg, sender_client=client)
 
         # Start Handling Thread For Client
-        thread = threading.Thread(target=handle, args=(client,))
+        thread = threading.Thread(target=handle, args=(client, nickname))
+        thread.daemon = True
         thread.start()
 
 
 receive()
-broadcast(time.ctime().encode('utf-8'))
